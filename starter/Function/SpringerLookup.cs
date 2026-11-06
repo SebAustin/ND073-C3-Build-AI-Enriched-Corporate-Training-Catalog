@@ -1,75 +1,61 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 namespace Udacity.springerlookupdemo
 {
-    
+    /// <summary>
+    /// Azure AI Search custom Web API skill.
+    /// Input:  ArticleName (Paper title), FileName (optional, blob name used for DOI lookup).
+    /// Output: PublicationName, Publisher, DOI, PublicationDate (ISO 8601).
+    /// The Springer API key is read from the SPRINGER_API_KEY app setting; it is never committed.
+    /// </summary>
     public static class SpringerLookup
     {
-        
-        /* 
+        private static readonly HttpClient Http = new() { Timeout = TimeSpan.FromSeconds(20) };
 
-          This is where you will configure your Spring API Key
-          
-        */
-        static readonly string apikey = "<insert API credential here>";
-        static readonly string springerapiendpoint = "http://api.springernature.com/openaccess/json";
-
-        #region Class used to deserialize the request
-        private class InputRecord
+        #region Skill request/response contract
+        private sealed class InputRecord
         {
-            public class InputRecordData
+            public sealed class InputRecordData
             {
                 public string ArticleName { get; set; }
+                public string FileName { get; set; }
             }
 
             public string RecordId { get; set; }
             public InputRecordData Data { get; set; }
         }
 
-        private class WebApiRequest
+        private sealed class WebApiRequest
         {
             public List<InputRecord> Values { get; set; }
         }
-        #endregion
 
-        #region Classes used to serialize the response
-
-        private class OutputRecord
+        private sealed class OutputRecord
         {
-            public class OutputRecordData
+            public sealed class Message
             {
-                public string PublicationName { get; set; } = "";
-                public string Publisher { get; set; } = "";
-                public string DOI { get; set; } = "";
-                public string PublicationDate { get; set; } = "";
-            }
-
-            public class OutputRecordMessage
-            {
-                public string Message { get; set; } = string.Empty;
+                public string message { get; set; }
             }
 
             public string RecordId { get; set; }
-            public OutputRecordData Data { get; set; }
-            public List<OutputRecordMessage> Errors { get; set; } = new();
-            public List<OutputRecordMessage> Warnings { get; set; } = new();
+            public PublicationMetadata Data { get; set; }
+            public List<Message> Errors { get; } = new();
+            public List<Message> Warnings { get; } = new();
         }
 
-        private class WebApiResponse
+        private sealed class WebApiResponse
         {
-            public List<OutputRecord> Values { get; set; } = new();
+            public List<OutputRecord> Values { get; } = new();
         }
         #endregion
 
@@ -77,90 +63,62 @@ namespace Udacity.springerlookupdemo
         public static async Task<IActionResult> Run(
             [HttpTrigger(AuthorizationLevel.Function, "post", Route = null)] HttpRequest req, ILogger log)
         {
-           log.LogInformation("Entity Search function: C# HTTP trigger function processed a request.");
+            string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
 
-            var response = new WebApiResponse
+            WebApiRequest request;
+            try
             {
-                Values = new List<OutputRecord>()
-            };
-
-            string requestBody = new StreamReader(req.Body).ReadToEnd();
-            var data = JsonConvert.DeserializeObject<WebApiRequest>(requestBody);
-
-            // Do some schema validation
-            if (data == null)
-            {
-                return new BadRequestObjectResult("The request schema does not match expected schema.");
+                request = JsonConvert.DeserializeObject<WebApiRequest>(requestBody);
             }
-            if (data.Values == null)
+            catch (JsonException)
+            {
+                return new BadRequestObjectResult("Request body is not valid JSON.");
+            }
+            if (request?.Values == null)
             {
                 return new BadRequestObjectResult("The request schema does not match expected schema. Could not find values array.");
             }
 
-            // Calculate the response for each value.
-            foreach (var record in data.Values)
+            SpringerClient client;
+            try
             {
-                if (record == null || record.RecordId == null) continue;
-
-                var responseRecord = new OutputRecord { RecordId = record.RecordId };
-
-                try
-                {
-                    // Await the async method rather than blocking with .Result to avoid thread starvation.
-                    responseRecord.Data = await GetEntityMetadata(record.Data?.ArticleName ?? string.Empty);
-                }
-                catch (Exception e)
-                {
-                    // Something bad happened, log the issue.
-                    var error = new OutputRecord.OutputRecordMessage
-                    {
-                        Message = e.Message
-                    };
-
-                    responseRecord.Errors.Add(error);
-                }
-                finally
-                {
-                    response.Values.Add(responseRecord);
-                }
+                client = new SpringerClient(Http, Environment.GetEnvironmentVariable("SPRINGER_API_KEY"));
+            }
+            catch (InvalidOperationException e)
+            {
+                log.LogError(e.Message);
+                return new ObjectResult(e.Message) { StatusCode = StatusCodes.Status500InternalServerError };
             }
 
-            return (ActionResult)new OkObjectResult(response);
+            var response = new WebApiResponse();
+            foreach (var record in request.Values)
+            {
+                if (record?.RecordId == null) continue;
+                response.Values.Add(await ProcessRecordAsync(client, record, log));
+            }
+            return new OkObjectResult(response);
         }
 
-        #region Methods to call the Springer API
-        
-        
-        private static async Task<OutputRecord.OutputRecordData> GetEntityMetadata(string title)
+        private static async Task<OutputRecord> ProcessRecordAsync(SpringerClient client, InputRecord record, ILogger log)
         {
-            var uri = springerapiendpoint + "?q=title:\"" + title + "\"&api_key=" + apikey;
-            var result = new OutputRecord.OutputRecordData();
-
-            using (var client = new HttpClient())
-            using (var request = new HttpRequestMessage {
-                Method = HttpMethod.Get,
-                RequestUri = new Uri(uri)
-            })
+            var output = new OutputRecord { RecordId = record.RecordId };
+            var articleName = record.Data?.ArticleName ?? "";
+            var fileName = record.Data?.FileName ?? "";
+            try
             {
-                var httpResponse = await client.SendAsync(request);
-                httpResponse.EnsureSuccessStatusCode();
-                string responseBody = await httpResponse.Content.ReadAsStringAsync();
-                var springerresults = JObject.Parse(responseBody);
-                var parsedresults = springerresults["records"]?.Children().ToList() ?? new List<JToken>();
-
-                foreach (var t in parsedresults)
+                output.Data = await client.LookupAsync(articleName, fileName);
+                if (string.IsNullOrEmpty(output.Data.DOI))
                 {
-                    result.DOI = t.Value<string>("doi") ?? result.DOI;
-                    result.PublicationDate = t.Value<string>("publicationDate") ?? result.PublicationDate;
-                    result.PublicationName = t.Value<string>("publicationName") ?? result.PublicationName;
-                    result.Publisher = t.Value<string>("publisher") ?? result.Publisher;
+                    output.Warnings.Add(new OutputRecord.Message { message = $"No Springer match for '{fileName}' / '{articleName}'." });
                 }
             }
-
-            return result;
+            catch (Exception e)
+            {
+                log.LogWarning("Springer lookup failed for record {RecordId}: {Error}", record.RecordId, e.Message);
+                output.Data = PublicationMetadata.Empty;
+                output.Errors.Add(new OutputRecord.Message { message = e.Message });
+            }
+            return output;
         }
-
-        
-        #endregion
     }
 }

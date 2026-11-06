@@ -1,0 +1,187 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1040" viewBox="0 0 1800 1040" font-family="Helvetica, Arial, sans-serif">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#3b4a5e"/>
+    </marker>
+    <style>
+      .zone { fill: #f4f7fb; stroke: #9fb3c8; stroke-width: 2; rx: 14; }
+      .zone-title { font-size: 22px; font-weight: 700; fill: #1d2433; }
+      .box { fill: #ffffff; stroke: #0078d4; stroke-width: 2; rx: 8; }
+      .box-ext { fill: #fff8ec; stroke: #c77700; stroke-width: 2; rx: 8; stroke-dasharray: 7 4; }
+      .box-ai { fill: #f3ecff; stroke: #8a3ffc; stroke-width: 2; rx: 8; }
+      .box-ui { fill: #e9f7f1; stroke: #0b6e4f; stroke-width: 2; rx: 8; }
+      .h { font-size: 17px; font-weight: 700; fill: #1d2433; }
+      .t { font-size: 14px; fill: #3b4a5e; }
+      .s { font-size: 13px; fill: #5b6475; font-style: italic; }
+      .flow { stroke: #3b4a5e; stroke-width: 2.2; fill: none; marker-end: url(#arrow); }
+      .flow-dash { stroke: #3b4a5e; stroke-width: 2; fill: none; stroke-dasharray: 6 5; marker-end: url(#arrow); }
+      .label { font-size: 13px; fill: #1d2433; font-weight: 600; }
+    </style>
+  </defs>
+
+  <rect width="1800" height="1040" fill="#ffffff"/>
+  <text x="40" y="52" font-size="30" font-weight="700" fill="#1d2433">AI-Enriched Corporate Training Catalog - Architecture</text>
+  <text x="40" y="82" class="t">Knowledge-mining pipeline from two Azure data sources, through Azure AI Search enrichment, to an Azure Static Web App</text>
+
+  <!-- Zone 1: Data sources -->
+  <rect x="30" y="110" width="440" height="700" class="zone"/>
+  <text x="50" y="145" class="zone-title">1. Data sources (Azure Storage account)</text>
+
+  <rect x="55" y="170" width="390" height="150" class="box"/>
+  <text x="75" y="200" class="h">Table Storage: "courses"</text>
+  <text x="75" y="225" class="t">995 Course Offerings from 3 Sources:</text>
+  <text x="75" y="247" class="t">MS Learn (Module) · Udacity (Nanodegree)</text>
+  <text x="75" y="269" class="t">Company Moodle (Internal)</text>
+  <text x="75" y="296" class="s">typed: duration (h), rating_average, rating_count</text>
+
+  <rect x="55" y="350" width="390" height="120" class="box"/>
+  <text x="75" y="380" class="h">Blob Storage: "papers"</text>
+  <text x="75" y="405" class="t">Curated Library: 20 open-access</text>
+  <text x="75" y="427" class="t">journal Papers (PDF)</text>
+  <text x="75" y="452" class="s">big-data research articles</text>
+
+  <rect x="55" y="500" width="390" height="110" class="box"/>
+  <text x="75" y="530" class="h">Instructor Profiles</text>
+  <text x="75" y="555" class="t">MoodleInstructorProfiles.json (5 Instructors)</text>
+  <text x="75" y="578" class="s">embedded as inline entities in the skillset</text>
+
+  <rect x="55" y="640" width="390" height="145" class="box"/>
+  <text x="75" y="670" class="h">Data preparation</text>
+  <text x="75" y="695" class="t">prepare_courses.py: trim / normalise level,</text>
+  <text x="75" y="717" class="t">derive Course Type, duration → hours,</text>
+  <text x="75" y="739" class="t">fix Udacity ratings, typed Table upload</text>
+  <text x="75" y="764" class="s">Azure Storage Explorer / az CLI: upload PDFs</text>
+  <path d="M55,712 L42,712 L42,245 L53,245" class="flow-dash"/>
+
+  <!-- Zone 2: Azure AI Search -->
+  <rect x="510" y="110" width="800" height="700" class="zone"/>
+  <text x="530" y="145" class="zone-title">2. Azure AI Search (Free tier) - enrichment pipeline</text>
+
+  <!-- data source objects -->
+  <rect x="535" y="170" width="170" height="90" class="box"/>
+  <text x="550" y="200" class="h">Data source</text>
+  <text x="550" y="224" class="t">course-data</text>
+  <text x="550" y="246" class="s">Azure Table</text>
+  <rect x="535" y="350" width="170" height="90" class="box"/>
+  <text x="550" y="380" class="h">Data source</text>
+  <text x="550" y="404" class="t">research-library</text>
+  <text x="550" y="426" class="s">Azure Blob</text>
+
+  <!-- indexers -->
+  <rect x="730" y="170" width="170" height="90" class="box"/>
+  <text x="745" y="200" class="h">Indexer</text>
+  <text x="745" y="224" class="t">courses-indexer</text>
+  <text x="745" y="246" class="s">schedule: daily (P1D)</text>
+  <rect x="730" y="350" width="170" height="90" class="box"/>
+  <text x="745" y="380" class="h">Indexer</text>
+  <text x="745" y="404" class="t">library-indexer</text>
+  <text x="745" y="426" class="s">schedule: daily (P1D)</text>
+
+  <!-- skillsets -->
+  <rect x="925" y="160" width="360" height="160" class="box-ai"/>
+  <text x="940" y="188" class="h">Skillset: courses-skillset</text>
+  <text x="940" y="212" class="t">• Key Phrase Extraction (description → Skills)</text>
+  <text x="940" y="234" class="t">• Custom Entity Lookup (instructor →</text>
+  <text x="955" y="254" class="t">Instructor Profiles)  [Step 3]</text>
+  <text x="940" y="276" class="t">• Shaper (keep name + description)  [Step 3]</text>
+  <text x="940" y="300" class="s">output field mappings → index fields</text>
+
+  <rect x="925" y="335" width="360" height="190" class="box-ai"/>
+  <text x="940" y="363" class="h">Skillset: library-skillset</text>
+  <text x="940" y="387" class="t">• Document cracking + OCR + Merge text</text>
+  <text x="940" y="409" class="t">• Entity Recognition: people (authors),</text>
+  <text x="955" y="429" class="t">organizations (institutions)</text>
+  <text x="940" y="451" class="t">• Key Phrase Extraction · Language Detection</text>
+  <text x="940" y="473" class="t">• Custom Web API skill → Azure Function</text>
+  <text x="955" y="493" class="t">(Publication, Publisher, Date, DOI)  [Step 3]</text>
+
+  <!-- indexes -->
+  <rect x="535" y="560" width="350" height="215" class="box"/>
+  <text x="550" y="590" class="h">Index: courses-index</text>
+  <text x="550" y="614" class="t">search: title, description, Skills, instructor,</text>
+  <text x="565" y="634" class="t">Instructor Profiles</text>
+  <text x="550" y="656" class="t">filter/facet: source, type, level, role,</text>
+  <text x="565" y="676" class="t">product, Skills, instructor name</text>
+  <text x="550" y="698" class="t">filter/sort: rating_average, rating_count,</text>
+  <text x="565" y="718" class="t">duration · sort: title</text>
+  <text x="550" y="744" class="s">CORS: static site origin only</text>
+
+  <rect x="905" y="560" width="380" height="215" class="box"/>
+  <text x="920" y="590" class="h">Index: library-index</text>
+  <text x="920" y="614" class="t">search: full text, people, organizations,</text>
+  <text x="935" y="634" class="t">key phrases, publicationName, publisher</text>
+  <text x="920" y="656" class="t">filter/facet: people, organizations,</text>
+  <text x="935" y="676" class="t">publicationName, publisher</text>
+  <text x="920" y="698" class="t">filter/sort: publicationDate (DateTimeOffset)</text>
+  <text x="920" y="720" class="t">retrieve: DOI, title, file name</text>
+
+  <!-- pipeline arrows -->
+  <path d="M445,245 L533,215" class="flow"/>
+  <path d="M445,410 L533,395" class="flow"/>
+  <path d="M705,215 L728,215" class="flow"/>
+  <path d="M705,395 L728,395" class="flow"/>
+  <path d="M900,215 L923,230" class="flow"/>
+  <path d="M900,395 L923,420" class="flow"/>
+  <path d="M925,310 L912,310 L912,542 L710,542 L710,558" class="flow"/>
+  <path d="M1100,525 L1100,558" class="flow"/>
+  <path d="M445,540 L490,540 L490,302 L923,302" class="flow-dash"/>
+  <text x="560" y="295" class="label">inline entities (Instructor Profiles)</text>
+
+  <!-- AI Services + Function -->
+  <rect x="510" y="840" width="380" height="150" class="box-ai"/>
+  <text x="530" y="870" class="h">Azure AI Services (Standard, multi-service)</text>
+  <text x="530" y="895" class="t">Billing + models for built-in skills</text>
+  <text x="530" y="917" class="t">(key phrases, entities, OCR, language,</text>
+  <text x="530" y="939" class="t">custom entity lookup)</text>
+  <text x="530" y="965" class="s">attached to both skillsets</text>
+  <path d="M890,880 L896,880 L896,548 L960,548 L960,527" class="flow-dash"/>
+
+  <rect x="930" y="840" width="380" height="150" class="box"/>
+  <text x="950" y="870" class="h">Azure Function: SpringerLookup</text>
+  <text x="950" y="895" class="t">.NET 8 · HTTP trigger (function key)</text>
+  <text x="950" y="917" class="t">in: ArticleName, FileName</text>
+  <text x="950" y="939" class="t">out: PublicationName, Publisher, DOI, Date</text>
+  <text x="950" y="965" class="s">API key in app setting SPRINGER_API_KEY</text>
+  <path d="M1287,470 L1298,470 L1298,824 L1250,824 L1250,838" class="flow" marker-start="url(#arrow)"/>
+
+  <rect x="1360" y="855" width="400" height="120" class="box-ext"/>
+  <text x="1380" y="885" class="h">Springer Nature Open Access API</text>
+  <text x="1380" y="910" class="t">External: lookup by DOI (from file name),</text>
+  <text x="1380" y="932" class="t">then exact title match</text>
+  <text x="1380" y="956" class="s">api.springernature.com/openaccess</text>
+  <path d="M1310,915 L1358,915" class="flow" marker-start="url(#arrow)"/>
+
+  <!-- Zone 3: UI -->
+  <rect x="1350" y="110" width="420" height="700" class="zone"/>
+  <text x="1370" y="145" class="zone-title">3. Presentation</text>
+
+  <rect x="1375" y="170" width="370" height="230" class="box-ui"/>
+  <text x="1395" y="200" class="h">Azure Static Web App</text>
+  <text x="1395" y="224" class="t">Training catalog search page (Vue.js)</text>
+  <text x="1395" y="250" class="t">• keyword search</text>
+  <text x="1395" y="272" class="t">• facets: source, type, level, role,</text>
+  <text x="1410" y="292" class="t">technology, Skills</text>
+  <text x="1395" y="314" class="t">• rating slider + pre-built filters</text>
+  <text x="1395" y="336" class="t">• Instructor Profiles on Internal courses</text>
+  <text x="1395" y="364" class="s">calls Search REST API with a read-only</text>
+  <text x="1395" y="384" class="s">query key (GET /indexes/…/docs)</text>
+  <path d="M1373,380 L1330,380 L1330,794 L710,794 L710,777" class="flow" marker-start="url(#arrow)"/>
+  <text x="760" y="805" class="label">HTTPS query (query key) + results</text>
+
+  <rect x="1375" y="440" width="370" height="110" class="box-ui"/>
+  <text x="1395" y="470" class="h">Employees</text>
+  <text x="1395" y="495" class="t">Search, filter, facet and sort all</text>
+  <text x="1395" y="517" class="t">learning options in one place</text>
+  <path d="M1560,440 L1560,402" class="flow"/>
+
+  <rect x="1375" y="590" width="370" height="185" class="box"/>
+  <text x="1395" y="620" class="h">Azure Monitor</text>
+  <text x="1395" y="644" class="t">Search: latency, queries/sec, throttling</text>
+  <text x="1395" y="666" class="t">Usage: storage, documents, indexes,</text>
+  <text x="1395" y="688" class="t">indexers, data sources</text>
+  <text x="1395" y="714" class="s">Note: the MVP is hosted as a Storage</text>
+  <text x="1395" y="734" class="s">static website ($web container); the target</text>
+  <text x="1395" y="754" class="s">design is Azure Static Web Apps.</text>
+
+  <text x="40" y="1025" class="s">Legend: blue = Azure data/search resources · purple = AI enrichment · green = user-facing · orange dashed = external service · dashed arrows = configuration / build-time flows</text>
+</svg>

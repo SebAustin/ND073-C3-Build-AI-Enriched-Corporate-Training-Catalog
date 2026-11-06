@@ -1,0 +1,102 @@
+AI-Enriched Corporate Training Catalog - Step 1 Requirements
+=============================================================
+
+Terms follow GLOSSARY.md. A "Course Offering" is one course listed for one technology
+and one role; the same course title can appear as several Course Offerings.
+
+DATA SOURCES
+------------
+1.  Users can search Course Data from three Sources in one place: MS Learn, Udacity
+    and the company's internal Moodle site (Azure Table Storage table "courses").
+2.  Users can search the Curated Library of 20 open-access journal Papers stored as
+    PDF files (Azure Blob Storage container "papers").
+3.  Users can see every Course Offering's Course Type (Module for MS Learn, Nanodegree
+    for Udacity, Internal for Company Moodle), derived from its Source.
+4.  Users can trust that Duration is comparable across Sources: it is stored in hours
+    (MS Learn minutes / 60; Udacity months x 40 h; Moodle hours), with the original
+    wording kept for display.
+5.  Users can trust that ratings are consistent: courses without ratings are shown as
+    Unrated instead of rated 0, and transposed Udacity rating columns are corrected
+    before indexing.
+
+SEARCHING - COURSE DATA
+-----------------------
+6.  Users can search Course Data by keywords and phrases in the title and description.
+7.  Users can search Course Data by Skill (key phrases extracted from the description
+    by Azure AI Services).
+8.  Users can search Course Data by Instructor name.
+9.  Users can see each result's title, description, Source, Course Type, level, role,
+    Technology, Duration, Rating, Rating Count and URL.
+
+FILTERING - COURSE DATA
+-----------------------
+10. Users can filter Course Data by minimum Rating (e.g. 4.5 and above).
+11. Users can filter Course Data by Duration (e.g. courses of one hour or less).
+12. Users can filter Course Data by Rating Count to favour well-reviewed courses.
+13. Users can filter Course Data by Source, Course Type, level, role, Technology and Skill.
+
+FACETING - COURSE DATA
+----------------------
+14. Users can facet Course Data by Source, Course Type, level, role and Technology.
+15. Users can facet Course Data by Skill.
+16. Users can facet Course Data by Instructor.
+
+SORTING - COURSE DATA
+---------------------
+17. Users can sort Course Data by Rating, Rating Count, Duration and title.
+
+SEARCHING - CURATED LIBRARY
+---------------------------
+18. Users can search Papers by keywords and phrases in the full text, including text
+    recovered with OCR.
+19. Users can search Papers by author (people entities recognised in the text).
+20. Users can search Papers by the authors' associated institutions (organisation
+    entities recognised in the text).
+21. Users can search Papers by key phrase.
+22. Users can see each Paper's title, file name, authors, institutions, key phrases
+    and language.
+
+FILTERING / FACETING / SORTING - CURATED LIBRARY
+------------------------------------------------
+23. Users can facet and filter Papers by author and by institution.
+24. Users can facet Papers by key phrase.
+
+ENRICHMENTS
+-----------
+25. Users can see the Instructor Profile (name and description) returned with every
+    Internal Course Offering, even though profiles are not stored in the course data
+    (Custom Entity Lookup skill over MoodleInstructorProfiles.json).
+26. Users can search Course Data by words in an Instructor Profile (e.g. an
+    instructor's specialty or hobby).
+27. Users can filter and facet Course Data by Instructor Profile name.
+28. Users can search the Curated Library by Publication name (journal), e.g.
+    "Journal of Big Data" (custom Azure Function skill calling the Springer Nature API).
+29. Users can search, filter and facet the Curated Library by publisher.
+30. Users can filter the Curated Library by Publication Date range and sort Papers by
+    Publication Date.
+31. Users can see the DOI (Digital Object Identifier) of each Paper in the search
+    result and open it as https://doi.org/<DOI>.
+32. Users can facet the Curated Library by Publication name.
+
+USER INTERFACE AND OPERATIONS
+-----------------------------
+33. Users can search Course Data from a web page, refine results with Source, Course
+    Type, level, role, Technology and Skill facets, a minimum-rating slider and
+    pre-built filters (Top rated, Under 1 hour, Internal courses, Beginner friendly).
+34. Users can browse the catalog without the page exposing write access: the web page
+    uses a read-only query key and the search service only accepts browser calls from
+    the site's own origin (CORS).
+35. Users can rely on fresh data: both indexers run on a daily schedule and pick up new
+    or changed courses and Papers automatically.
+36. Administrators can monitor storage used, document counts, indexes, indexers, data
+    sources and search latency/throughput in the Azure portal.
+
+KNOWN LIMITATIONS
+-----------------
+- Popularity and Review are named in the brief but are not present in the course data,
+  so they are not searchable.
+- The same course appears once per (technology, role) pair (about 5.7 Course Offerings
+  per course); see docs/adr/0001.
+- 2 of the 20 Papers cannot be matched to Springer metadata (their file names are not
+  Springer article ids and their embedded titles are missing), so they have no
+  Publication details.

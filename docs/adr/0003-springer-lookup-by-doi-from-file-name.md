@@ -1,0 +1,3 @@
+# Look up Springer metadata by DOI derived from the file name first
+
+The starter Function searched Springer with `q=title:"…"`, but on the free API tier field queries are rejected as a "premium feature" and pages are capped at 20, so title lookup returned nothing and phrase search rarely ranks the right paper first. Curated Library files from SpringerOpen are named after their article id (`s40537-019-0210-7.pdf`), so the Function first queries `doi:10.1186/<id>` then `doi:10.1007/<id>`, and only then falls back to a phrase search that accepts an exact title match. This resolves 18 of 20 Papers; the skill keeps the brief's `ArticleName` input and adds an optional `FileName`.
