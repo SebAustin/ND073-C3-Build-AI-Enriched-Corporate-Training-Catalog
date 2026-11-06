@@ -1,0 +1,161 @@
+{
+  "@odata.context": "https://tcat-search-7861.search.windows.net/$metadata#skillsets/$entity",
+  "name": "courses-skillset",
+  "description": "Course Data enrichment",
+  "skills": [
+    {
+      "@odata.type": "#Microsoft.Skills.Text.KeyPhraseExtractionSkill",
+      "name": "description-skills",
+      "description": "Skills = key phrases of the description",
+      "context": "/document",
+      "defaultLanguageCode": "en",
+      "maxKeyPhraseCount": null,
+      "modelVersion": null,
+      "inputs": [
+        {
+          "name": "text",
+          "source": "/document/description",
+          "sourceContext": null,
+          "inputs": []
+        }
+      ],
+      "outputs": [
+        {
+          "name": "keyPhrases",
+          "targetName": "keyphrases"
+        }
+      ]
+    },
+    {
+      "@odata.type": "#Microsoft.Skills.Text.CustomEntityLookupSkill",
+      "name": "instructor-profile-lookup",
+      "description": "Matches Instructors against the company's Instructor Profiles",
+      "context": "/document",
+      "defaultLanguageCode": "en",
+      "entitiesDefinitionUri": null,
+      "globalDefaultCaseSensitive": null,
+      "globalDefaultAccentSensitive": null,
+      "globalDefaultFuzzyEditDistance": null,
+      "inputs": [
+        {
+          "name": "text",
+          "source": "/document/instructor",
+          "sourceContext": null,
+          "inputs": []
+        }
+      ],
+      "outputs": [
+        {
+          "name": "entities",
+          "targetName": "instructorEntities"
+        }
+      ],
+      "inlineEntitiesDefinition": [
+        {
+          "name": "Mike Montoya",
+          "description": "Mike  is our HR trainer responsible for helping employees be successful in their careers at our company.  He has been with us for 3 years. Mike is an amateur chef and enjoys outdoor live music events.",
+          "type": null,
+          "subtype": null,
+          "id": null,
+          "caseSensitive": null,
+          "accentSensitive": null,
+          "fuzzyEditDistance": null,
+          "defaultCaseSensitive": null,
+          "defaultAccentSensitive": null,
+          "defaultFuzzyEditDistance": null,
+          "aliases": []
+        },
+        {
+          "name": "Claudia Blackman",
+          "description": "Claudia is our senior DevOps engineer. She is charged with overseeing our DevOps operations and has been with the company for 2 years. Claudia enjoys downhill skiing and is a member of the local Search & Rescue Team.",
+          "type": null,
+          "subtype": null,
+          "id": null,
+          "caseSensitive": null,
+          "accentSensitive": null,
+          "fuzzyEditDistance": null,
+          "defaultCaseSensitive": null,
+          "defaultAccentSensitive": null,
+          "defaultFuzzyEditDistance": null,
+          "aliases": []
+        },
+        {
+          "name": "Robert Gillis",
+          "description": "Robert is our GIS specialist in charge of making beautiful maps for our users. He has been with the company for 8 years and enjoys hiking, fishing, and any other outdoor activity.",
+          "type": null,
+          "subtype": null,
+          "id": null,
+          "caseSensitive": null,
+          "accentSensitive": null,
+          "fuzzyEditDistance": null,
+          "defaultCaseSensitive": null,
+          "defaultAccentSensitive": null,
+          "defaultFuzzyEditDistance": null,
+          "aliases": []
+        },
+        {
+          "name": "Gerald Dominguez",
+          "description": "Gerald is a Junior IT Administrator and has been with the company for 1 year. Gerald played NCAA soccer and is a part-time soccer coach on weekends. ",
+          "type": null,
+          "subtype": null,
+          "id": null,
+          "caseSensitive": null,
+          "accentSensitive": null,
+          "fuzzyEditDistance": null,
+          "defaultCaseSensitive": null,
+          "defaultAccentSensitive": null,
+          "defaultFuzzyEditDistance": null,
+          "aliases": []
+        },
+        {
+          "name": "Eileen Diaz",
+          "description": "Eileen is our Senior Security Engineer responsible for application and service security. She has been with the company for 9 years and enjoys writing Sci-Fi in her spare time.",
+          "type": null,
+          "subtype": null,
+          "id": null,
+          "caseSensitive": null,
+          "accentSensitive": null,
+          "fuzzyEditDistance": null,
+          "defaultCaseSensitive": null,
+          "defaultAccentSensitive": null,
+          "defaultFuzzyEditDistance": null,
+          "aliases": []
+        }
+      ]
+    },
+    {
+      "@odata.type": "#Microsoft.Skills.Util.ShaperSkill",
+      "name": "instructor-profile-shaper",
+      "description": "Keeps only name and description of each matched Instructor Profile",
+      "context": "/document/instructorEntities/*",
+      "inputs": [
+        {
+          "name": "name",
+          "source": "/document/instructorEntities/*/name",
+          "sourceContext": null,
+          "inputs": []
+        },
+        {
+          "name": "description",
+          "source": "/document/instructorEntities/*/description",
+          "sourceContext": null,
+          "inputs": []
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output",
+          "targetName": "profile"
+        }
+      ]
+    }
+  ],
+  "cognitiveServices": {
+    "@odata.type": "#Microsoft.Azure.Search.CognitiveServicesByKey",
+    "description": "AI Services (S0) for enrichment billing",
+    "key": "<redacted>"
+  },
+  "knowledgeStore": null,
+  "indexProjections": null,
+  "encryptionKey": null
+}

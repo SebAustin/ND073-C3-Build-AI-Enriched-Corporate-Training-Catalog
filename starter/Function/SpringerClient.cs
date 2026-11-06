@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace Udacity.springerlookupdemo
@@ -14,10 +15,12 @@ namespace Udacity.springerlookupdemo
     /// PublicationDate is ISO 8601 (or null) so it can be indexed as Edm.DateTimeOffset.
     /// </summary>
     public sealed record PublicationMetadata(
-        string PublicationName,
-        string Publisher,
-        string DOI,
-        string PublicationDate)
+        // Explicit names: the in-process host camel-cases JSON by default, but the skill contract
+        // (and the skillset outputs) use PublicationName / Publisher / DOI / PublicationDate.
+        [property: JsonProperty("PublicationName")] string PublicationName,
+        [property: JsonProperty("Publisher")] string Publisher,
+        [property: JsonProperty("DOI")] string DOI,
+        [property: JsonProperty("PublicationDate")] string PublicationDate)
     {
         public static readonly PublicationMetadata Empty = new("", "", "", null);
     }
@@ -91,6 +94,10 @@ namespace Udacity.springerlookupdemo
             var uri = $"{Endpoint}?q={Uri.EscapeDataString(query)}&p={pageSize}&api_key={Uri.EscapeDataString(apiKey)}";
             using var response = await http.GetAsync(uri);
             var body = await response.Content.ReadAsStringAsync();
+            if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
+            {
+                return new List<JToken>(); // Springer answers 404 for "no data matches this query"
+            }
             if (!response.IsSuccessStatusCode)
             {
                 // Never surface the request URI: it carries the API key.

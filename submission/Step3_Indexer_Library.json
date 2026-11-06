@@ -1,0 +1,82 @@
+{
+  "@odata.context": "https://tcat-search-7861.search.windows.net/$metadata#indexers/$entity",
+  "name": "library-indexer",
+  "description": null,
+  "dataSourceName": "research-library",
+  "skillsetName": "library-skillset",
+  "targetIndexName": "library-index",
+  "disabled": null,
+  "schedule": {
+    "interval": "P1D",
+    "startTime": "2026-11-07T06:00:00Z"
+  },
+  "parameters": {
+    "batchSize": null,
+    "maxFailedItems": -1,
+    "maxFailedItemsPerBatch": -1,
+    "base64EncodeKeys": null,
+    "configuration": {
+      "dataToExtract": "contentAndMetadata",
+      "parsingMode": "default",
+      "imageAction": "generateNormalizedImages"
+    }
+  },
+  "fieldMappings": [
+    {
+      "sourceFieldName": "metadata_storage_path",
+      "targetFieldName": "metadata_storage_path",
+      "mappingFunction": {
+        "name": "base64Encode",
+        "parameters": null
+      }
+    }
+  ],
+  "outputFieldMappings": [
+    {
+      "sourceFieldName": "/document/merged_content",
+      "targetFieldName": "merged_content",
+      "mappingFunction": null
+    },
+    {
+      "sourceFieldName": "/document/language",
+      "targetFieldName": "language",
+      "mappingFunction": null
+    },
+    {
+      "sourceFieldName": "/document/pages/*/people/*",
+      "targetFieldName": "people",
+      "mappingFunction": null
+    },
+    {
+      "sourceFieldName": "/document/pages/*/organizations/*",
+      "targetFieldName": "organizations",
+      "mappingFunction": null
+    },
+    {
+      "sourceFieldName": "/document/pages/*/keyphrases/*",
+      "targetFieldName": "keyphrases",
+      "mappingFunction": null
+    },
+    {
+      "sourceFieldName": "/document/publicationName",
+      "targetFieldName": "publicationName",
+      "mappingFunction": null
+    },
+    {
+      "sourceFieldName": "/document/publisher",
+      "targetFieldName": "publisher",
+      "mappingFunction": null
+    },
+    {
+      "sourceFieldName": "/document/doi",
+      "targetFieldName": "doi",
+      "mappingFunction": null
+    },
+    {
+      "sourceFieldName": "/document/publicationDate",
+      "targetFieldName": "publicationDate",
+      "mappingFunction": null
+    }
+  ],
+  "encryptionKey": null
+}

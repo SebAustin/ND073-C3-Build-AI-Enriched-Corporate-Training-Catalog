@@ -1,0 +1,512 @@
+### Query 1: Courses: filter on rating, sorted by rating
+Index: courses-index
+Query string: search=*&$filter=rating_average ge 4.7&$orderby=rating_average desc&$count=true&$top=5&$select=title,source,rating_average,rating_count
+
+Result:
+{
+  "@odata.context": "https://tcat-search-7861.search.windows.net/indexes('courses-index')/$metadata#docs(*)",
+  "@odata.count": 711,
+  "value": [
+    {
+      "@search.score": 1.0,
+      "title": "Get started with Git and GitHub in Visual Studio",
+      "source": "MS Learn",
+      "rating_average": 5.0,
+      "rating_count": 8
+    },
+    {
+      "@search.score": 1.0,
+      "title": "Get started with Git and GitHub in Visual Studio",
+      "source": "MS Learn",
+      "rating_average": 5.0,
+      "rating_count": 8
+    },
+    {
+      "@search.score": 1.0,
+      "title": "Get started with Git and GitHub in Visual Studio",
+      "source": "MS Learn",
+      "rating_average": 5.0,
+      "rating_count": 8
+    },
+    {
+      "@search.score": 1.0,
+      "title": "Get started with Git and GitHub in Visual Studio",
+      "source": "MS Learn",
+      "rating_average": 5.0,
+      "rating_count": 8
+    },
+    {
+      "@search.score": 1.0,
+      "title": "Get started with Git and GitHub in Visual Studio",
+      "source": "MS Learn",
+      "rating_average": 5.0,
+      "rating_count": 8
+    }
+  ]
+}
+
+### Query 2: Courses: facet by source, level and role
+Index: courses-index
+Query string: search=*&$count=true&$top=0&facet=source&facet=level&facet=role
+
+Result:
+{
+  "@odata.context": "https://tcat-search-7861.search.windows.net/indexes('courses-index')/$metadata#docs(*)",
+  "@odata.count": 995,
+  "@search.facets": {
+    "source": [
+      {
+        "value": "MS Learn",
+        "count": 965
+      },
+      {
+        "value": "Udacity",
+        "count": 16
+      },
+      {
+        "value": "Company Moodle",
+        "count": 14
+      }
+    ],
+    "level": [
+      {
+        "value": "beginner",
+        "count": 636
+      },
+      {
+        "value": "intermediate",
+        "count": 330
+      },
+      {
+        "value": "advanced",
+        "count": 29
+      }
+    ],
+    "role": [
+      {
+        "value": "developer",
+        "count": 174
+      },
+      {
+        "value": "solution-architect",
+        "count": 130
+      },
+      {
+        "value": "business-user",
+        "count": 108
+      },
+      {
+        "value": "devops-engineer",
+        "count": 106
+      },
+      {
+        "value": "administrator",
+        "count": 105
+      },
+      {
+        "value": "functional-consultant",
+        "count": 75
+      },
+      {
+        "value": "data-scientist",
+        "count": 56
+      },
+      {
+        "value": "maker",
+        "count": 56
+      },
+      {
+        "value": "student",
+        "count": 56
+      },
+      {
+        "value": "ai-engineer",
+        "count": 47
+      }
+    ]
+  },
+  "value": []
+}
+
+### Query 3: Courses: beginner offerings of at most 1 hour, shortest first
+Index: courses-index
+Query string: search=*&$filter=duration le 1 and level eq 'beginner'&$orderby=duration asc&$count=true&$top=5&$select=title,level,duration,duration_text
+
+Result:
+{
+  "@odata.context": "https://tcat-search-7861.search.windows.net/indexes('courses-index')/$metadata#docs(*)",
+  "@odata.count": 485,
+  "value": [
+    {
+      "@search.score": 1.0,
+      "title": "Get started with invoice processing in AI Builder",
+      "level": "beginner",
+      "duration": 0.17,
+      "duration_text": "10"
+    },
+    {
+      "@search.score": 1.0,
+      "title": "Get started with invoice processing in AI Builder",
+      "level": "beginner",
+      "duration": 0.17,
+      "duration_text": "10"
+    },
+    {
+      "@search.score": 1.0,
+      "title": "Get started with invoice processing in AI Builder",
+      "level": "beginner",
+      "duration": 0.17,
+      "duration_text": "10"
+    },
+    {
+      "@search.score": 1.0,
+      "title": "Get started with invoice processing in AI Builder",
+      "level": "beginner",
+      "duration": 0.17,
+      "duration_text": "10"
+    },
+    {
+      "@search.score": 1.0,
+      "title": "Get started with invoice processing in AI Builder",
+      "level": "beginner",
+      "duration": 0.17,
+      "duration_text": "10"
+    }
+  ]
+}
+
+### Query 4: Courses: phrase search in descriptions, faceted by Skill
+Index: courses-index
+Query string: search="machine learning"&searchFields=description&$count=true&$top=3&facet=keyphrases,count:10&$select=title,description,keyphrases
+
+Result:
+{
+  "@odata.context": "https://tcat-search-7861.search.windows.net/indexes('courses-index')/$metadata#docs(*)",
+  "@odata.count": 64,
+  "@search.facets": {
+    "keyphrases": [
+      {
+        "value": "Azure Machine Learning",
+        "count": 38
+      },
+      {
+        "value": "machine learning",
+        "count": 9
+      },
+      {
+        "value": "machine learning models",
+        "count": 9
+      },
+      {
+        "value": "Azure Machine Learning designer",
+        "count": 6
+      },
+      {
+        "value": "Custom Vision AI service",
+        "count": 6
+      },
+      {
+        "value": "GitHub Actions",
+        "count": 6
+      },
+      {
+        "value": "enterprise AI management",
+        "count": 6
+      },
+      {
+        "value": "free open online course",
+        "count": 6
+      },
+      {
+        "value": "web app",
+        "count": 6
+      },
+      {
+        "value": "Azure Machine Learning SDK",
+        "count": 4
+      }
+    ]
+  },
+  "value": [
+    {
+      "@search.score": 9.896671,
+      "title": "Train a machine learning model with Azure Machine Learning",
+      "description": "Train a machine learning model with Azure Machine Learning",
+      "keyphrases": [
+        "machine learning model",
+        "Azure Machine Learning"
+      ]
+    },
+    {
+      "@search.score": 9.896671,
+      "title": "Use automated machine learning in Azure Machine Learning",
+      "description": "Use automated machine learning in Azure Machine Learning",
+      "keyphrases": [
+        "automated machine learning",
+        "Azure Machine Learning"
+      ]
+    },
+    {
+      "@search.score": 9.896671,
+      "title": "Explain machine learning models with Azure Machine Learning",
+      "description": "Explain machine learning models with Azure Machine Learning",
+      "keyphrases": [
+        "machine learning models",
+        "Azure Machine Learning"
+      ]
+    }
+  ]
+}
+
+### Query 5: Library: facet by institution and author
+Index: library-index
+Query string: search=*&$count=true&$top=0&facet=organizations,count:10&facet=people,count:10
+
+Result:
+{
+  "@odata.context": "https://tcat-search-7861.search.windows.net/indexes('library-index')/$metadata#docs(*)",
+  "@odata.count": 20,
+  "@search.facets": {
+    "organizations": [
+      {
+        "value": "Creative Commons",
+        "count": 5
+      },
+      {
+        "value": "s",
+        "count": 4
+      },
+      {
+        "value": "Google",
+        "count": 3
+      },
+      {
+        "value": "eBay",
+        "count": 3
+      },
+      {
+        "value": "Amazon",
+        "count": 2
+      },
+      {
+        "value": "CNN",
+        "count": 2
+      },
+      {
+        "value": "Commons",
+        "count": 2
+      },
+      {
+        "value": "EURASIP Journal",
+        "count": 2
+      },
+      {
+        "value": "Microsoft",
+        "count": 2
+      },
+      {
+        "value": "SA",
+        "count": 2
+      }
+    ],
+    "people": [
+      {
+        "value": "Liu",
+        "count": 3
+      },
+      {
+        "value": "Alice",
+        "count": 2
+      },
+      {
+        "value": "Chen",
+        "count": 2
+      },
+      {
+        "value": "Huang",
+        "count": 2
+      },
+      {
+        "value": "Pang",
+        "count": 2
+      },
+      {
+        "value": "Savage",
+        "count": 2
+      },
+      {
+        "value": "Wang",
+        "count": 2
+      },
+      {
+        "value": "Yang",
+        "count": 2
+      },
+      {
+        "value": "Yin",
+        "count": 2
+      },
+      {
+        "value": "Zhang",
+        "count": 2
+      }
+    ]
+  },
+  "value": []
+}
+
+### Query 6: Library: search by author (Lucene field search)
+Index: library-index
+Query string: queryType=full&search=people:"Alice"&$count=true&$select=metadata_title,people,organizations
+
+Result:
+{
+  "@odata.context": "https://tcat-search-7861.search.windows.net/indexes('library-index')/$metadata#docs(*)",
+  "@odata.count": 2,
+  "value": [
+    {
+      "@search.score": 2.92546,
+      "metadata_title": "Context-aware rule learning from smartphone data: survey, challenges and future directions",
+      "people": [
+        "Iqbal H. Sarker",
+        "Sarker ﻿J",
+        "Alice",
+        "niques"
+      ],
+      "organizations": [
+        "Google",
+        "s",
+        "Technology",
+        "x-axis"
+      ]
+    },
+    {
+      "@search.score": 2.3694212,
+      "metadata_title": null,
+      "people": [
+        "Johannes Sänger",
+        "Christian Richthammer",
+        "Günther Pernul",
+        "johannes",
+        "saenger",
+        "lem",
+        "Hevner",
+        "Gambetta",
+        "Alice",
+        "Bob",
+        "Claire",
+        "Christianson",
+        "Harbison"
+      ],
+      "organizations": [
+        "uni-regensburg.de",
+        "University of Regensburg",
+        "trust and reputation systems",
+        "reputation-based trust",
+        "eBay",
+        "general prob-",
+        "Springer",
+        "Creative Commons"
+      ]
+    }
+  ]
+}
+
+### Query 7: Library: big data Papers from one institution
+Index: library-index
+Query string: search=big data&$filter=organizations/any(o: o eq 'Creative Commons')&$count=true&$select=metadata_title,organizations
+
+Result:
+{
+  "@odata.context": "https://tcat-search-7861.search.windows.net/indexes('library-index')/$metadata#docs(*)",
+  "@odata.count": 5,
+  "value": [
+    {
+      "@search.score": 2.2915347,
+      "metadata_title": "Multi technique amalgamation for enhanced information identification with content based image data",
+      "organizations": [
+        "enhanced information identification",
+        "Walia",
+        "Precision",
+        "Creative Commons",
+        "Department of Information",
+        "Technology,",
+        "Xavier Institute",
+        "tecture",
+        "feature"
+      ]
+    },
+    {
+      "@search.score": 2.0496955,
+      "metadata_title": "Sentiment analysis and the complex natural language",
+      "organizations": [
+        "NLP",
+        "SA",
+        "Creative Commons",
+        "NLP",
+        "ior",
+        "gle",
+        "ML",
+        "mining"
+      ]
+    },
+    {
+      "@search.score": 0.44350994,
+      "metadata_title": null,
+      "organizations": [
+        "ant colony optimization",
+        "School of Science,",
+        "University of Science",
+        "Springer",
+        "Creative Commons",
+        "ACOA",
+        "ant"
+      ]
+    },
+    {
+      "@search.score": 0.3257143,
+      "metadata_title": null,
+      "organizations": [
+        "uni-regensburg.de",
+        "University of Regensburg",
+        "trust and reputation systems",
+        "reputation-based trust",
+        "eBay",
+        "general prob-",
+        "Springer",
+        "Creative Commons"
+      ]
+    },
+    {
+      "@search.score": 0.044277344,
+      "metadata_title": "Toward a testbed for evaluating computational trust models: experiments and analysis",
+      "organizations": [
+        "Department of Systems and",
+        "Computer Engineering,",
+        "Carleton",
+        "University",
+        "PeerTrust",
+        "eBay",
+        "Advogato",
+        "Creative Commons",
+        "trust assessment",
+        "EigenTrust",
+        "Trust management systems",
+        "eBay",
+        "EigenTrust",
+        "PeerTrust",
+        "TRAVOS",
+        "Beta Reputation System",
+        "TidalTrust",
+        "Appleseed",
+        "Credence",
+        "indirect trust",
+        "Aberer",
+        "BRS",
+        "Advogato",
+        "Marsh",
+        "Abdul-Rahman"
+      ]
+    }
+  ]
+}

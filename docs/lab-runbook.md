@@ -32,7 +32,23 @@ az storage container create -n papers --connection-string "$AZURE_STORAGE_CONNEC
 az storage blob upload-batch -d papers -s starter/Data/Library --connection-string "$AZURE_STORAGE_CONNECTION_STRING"
 ```
 
-## 3. Step 2: Import data wizard (portal, ≈15 min)
+## 3. Step 2: create the search objects
+
+> **What actually ran (2026-11-06):** the new portal "Import data" flow only lists *AIServices*-kind accounts
+> and forces managed-identity storage access, and it stalled on the account picker. Step 2 was created
+> with `scripts/search_step2.py` instead (same definitions, managed identity to storage):
+>
+> ```bash
+> PID=$(az search service update -g $RG -n $SEARCH --identity-type SystemAssigned --query identity.principalId -o tsv)
+> az role assignment create --assignee-object-id $PID --assignee-principal-type ServicePrincipal --role "Storage Table Data Reader" --scope $(az storage account show -g $RG -n $ST --query id -o tsv)
+> az role assignment create --assignee-object-id $PID --assignee-principal-type ServicePrincipal --role "Storage Blob Data Reader" --scope $(az storage account show -g $RG -n $ST --query id -o tsv)
+> STORAGE_RESOURCE_ID=... AI_SERVICES_KEY=... python3 scripts/search_step2.py   # AI account must be --kind AIServices
+> python3 scripts/indexer_status.py --wait
+> ```
+>
+> Free tier: on-demand indexer runs are limited to one every 180 s. Springer answers HTTP 404 for "no match".
+
+Original wizard checklist (portal, ≈15 min):
 
 **Courses**: Search service → Import data → Azure Table Storage → table `courses`, data source name `course-data`.
 - Attach AI Services: **`$AI`** (not Free). Enrichment: Key phrases on source field **description**, enrichment name `courses-skillset`.

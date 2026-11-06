@@ -40,23 +40,28 @@ namespace Udacity.springerlookupdemo
             public List<InputRecord> Values { get; set; }
         }
 
-        private sealed class OutputRecord
+        // Property names are pinned: the in-process host camel-cases JSON by default, which would turn
+        // the skill outputs into publicationName etc. The response is serialized explicitly in Run().
+        internal sealed class OutputRecord
         {
-            public sealed class Message
+            internal sealed class Message
             {
-                public string message { get; set; }
+                [JsonProperty("message")] public string Text { get; set; }
             }
 
-            public string RecordId { get; set; }
-            public PublicationMetadata Data { get; set; }
-            public List<Message> Errors { get; } = new();
-            public List<Message> Warnings { get; } = new();
+            [JsonProperty("recordId")] public string RecordId { get; set; }
+            [JsonProperty("data")] public PublicationMetadata Data { get; set; }
+            [JsonProperty("errors")] public List<Message> Errors { get; } = new();
+            [JsonProperty("warnings")] public List<Message> Warnings { get; } = new();
         }
 
-        private sealed class WebApiResponse
+        internal sealed class WebApiResponse
         {
-            public List<OutputRecord> Values { get; } = new();
+            [JsonProperty("values")] public List<OutputRecord> Values { get; } = new();
         }
+
+        internal static string Serialize(WebApiResponse response) =>
+            JsonConvert.SerializeObject(response, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Include });
         #endregion
 
         [FunctionName("SpringerLookup")]
@@ -96,7 +101,7 @@ namespace Udacity.springerlookupdemo
                 if (record?.RecordId == null) continue;
                 response.Values.Add(await ProcessRecordAsync(client, record, log));
             }
-            return new OkObjectResult(response);
+            return new ContentResult { Content = Serialize(response), ContentType = "application/json", StatusCode = 200 };
         }
 
         private static async Task<OutputRecord> ProcessRecordAsync(SpringerClient client, InputRecord record, ILogger log)
@@ -109,14 +114,14 @@ namespace Udacity.springerlookupdemo
                 output.Data = await client.LookupAsync(articleName, fileName);
                 if (string.IsNullOrEmpty(output.Data.DOI))
                 {
-                    output.Warnings.Add(new OutputRecord.Message { message = $"No Springer match for '{fileName}' / '{articleName}'." });
+                    output.Warnings.Add(new OutputRecord.Message { Text = $"No Springer match for '{fileName}' / '{articleName}'." });
                 }
             }
             catch (Exception e)
             {
                 log.LogWarning("Springer lookup failed for record {RecordId}: {Error}", record.RecordId, e.Message);
                 output.Data = PublicationMetadata.Empty;
-                output.Errors.Add(new OutputRecord.Message { message = e.Message });
+                output.Errors.Add(new OutputRecord.Message { Text = e.Message });
             }
             return output;
         }

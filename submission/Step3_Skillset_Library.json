@@ -1,0 +1,220 @@
+{
+  "@odata.context": "https://tcat-search-7861.search.windows.net/$metadata#skillsets/$entity",
+  "name": "library-skillset",
+  "description": "Curated Library enrichment",
+  "skills": [
+    {
+      "@odata.type": "#Microsoft.Skills.Vision.OcrSkill",
+      "name": "ocr",
+      "description": null,
+      "context": "/document/normalized_images/*",
+      "textExtractionAlgorithm": null,
+      "lineEnding": "Space",
+      "defaultLanguageCode": "en",
+      "detectOrientation": true,
+      "inputs": [
+        {
+          "name": "image",
+          "source": "/document/normalized_images/*",
+          "sourceContext": null,
+          "inputs": []
+        }
+      ],
+      "outputs": [
+        {
+          "name": "text",
+          "targetName": "text"
+        }
+      ]
+    },
+    {
+      "@odata.type": "#Microsoft.Skills.Text.MergeSkill",
+      "name": "merge-text",
+      "description": null,
+      "context": "/document",
+      "insertPreTag": " ",
+      "insertPostTag": " ",
+      "inputs": [
+        {
+          "name": "text",
+          "source": "/document/content",
+          "sourceContext": null,
+          "inputs": []
+        },
+        {
+          "name": "itemsToInsert",
+          "source": "/document/normalized_images/*/text",
+          "sourceContext": null,
+          "inputs": []
+        },
+        {
+          "name": "offsets",
+          "source": "/document/normalized_images/*/contentOffset",
+          "sourceContext": null,
+          "inputs": []
+        }
+      ],
+      "outputs": [
+        {
+          "name": "mergedText",
+          "targetName": "merged_content"
+        }
+      ]
+    },
+    {
+      "@odata.type": "#Microsoft.Skills.Text.LanguageDetectionSkill",
+      "name": "language",
+      "description": null,
+      "context": "/document",
+      "defaultCountryHint": null,
+      "modelVersion": null,
+      "inputs": [
+        {
+          "name": "text",
+          "source": "/document/merged_content",
+          "sourceContext": null,
+          "inputs": []
+        }
+      ],
+      "outputs": [
+        {
+          "name": "languageCode",
+          "targetName": "language"
+        }
+      ]
+    },
+    {
+      "@odata.type": "#Microsoft.Skills.Text.SplitSkill",
+      "name": "opening-pages",
+      "description": null,
+      "context": "/document",
+      "defaultLanguageCode": "en",
+      "textSplitMode": "pages",
+      "maximumPageLength": 5000,
+      "pageOverlapLength": 0,
+      "maximumPagesToTake": 2,
+      "inputs": [
+        {
+          "name": "text",
+          "source": "/document/merged_content",
+          "sourceContext": null,
+          "inputs": []
+        }
+      ],
+      "outputs": [
+        {
+          "name": "textItems",
+          "targetName": "pages"
+        }
+      ]
+    },
+    {
+      "@odata.type": "#Microsoft.Skills.Text.V3.EntityRecognitionSkill",
+      "name": "authors-institutions",
+      "description": null,
+      "context": "/document/pages/*",
+      "categories": [
+        "Person",
+        "Organization"
+      ],
+      "defaultLanguageCode": "en",
+      "minimumPrecision": null,
+      "modelVersion": null,
+      "inputs": [
+        {
+          "name": "text",
+          "source": "/document/pages/*",
+          "sourceContext": null,
+          "inputs": []
+        }
+      ],
+      "outputs": [
+        {
+          "name": "persons",
+          "targetName": "people"
+        },
+        {
+          "name": "organizations",
+          "targetName": "organizations"
+        }
+      ]
+    },
+    {
+      "@odata.type": "#Microsoft.Skills.Text.KeyPhraseExtractionSkill",
+      "name": "key-phrases",
+      "description": null,
+      "context": "/document/pages/*",
+      "defaultLanguageCode": "en",
+      "maxKeyPhraseCount": null,
+      "modelVersion": null,
+      "inputs": [
+        {
+          "name": "text",
+          "source": "/document/pages/*",
+          "sourceContext": null,
+          "inputs": []
+        }
+      ],
+      "outputs": [
+        {
+          "name": "keyPhrases",
+          "targetName": "keyphrases"
+        }
+      ]
+    },
+    {
+      "@odata.type": "#Microsoft.Skills.Custom.WebApiSkill",
+      "name": "springer-publication-lookup",
+      "description": "Azure Function that looks up Publication details for a Paper in Springer Nature",
+      "context": "/document",
+      "uri": "https://tcat-func-7861.azurewebsites.net/api/SpringerLookup?code=<function-key>",
+      "httpMethod": "POST",
+      "timeout": "PT1M30S",
+      "batchSize": 4,
+      "degreeOfParallelism": 1,
+      "authResourceId": null,
+      "inputs": [
+        {
+          "name": "ArticleName",
+          "source": "/document/metadata_title",
+          "sourceContext": null,
+          "inputs": []
+        },
+        {
+          "name": "FileName",
+          "source": "/document/metadata_storage_name",
+          "sourceContext": null,
+          "inputs": []
+        }
+      ],
+      "outputs": [
+        {
+          "name": "PublicationName",
+          "targetName": "publicationName"
+        },
+        {
+          "name": "Publisher",
+          "targetName": "publisher"
+        },
+        {
+          "name": "DOI",
+          "targetName": "doi"
+        },
+        {
+          "name": "PublicationDate",
+          "targetName": "publicationDate"
+        }
+      ],
+      "httpHeaders": {},
+      "authIdentity": null
+    }
+  ],
+  "cognitiveServices": {
+    "@odata.type": "#Microsoft.Azure.Search.CognitiveServicesByKey",
+    "description": "AI Services (S0) for enrichment billing",
+    "key": "<redacted>"
+  },
+  "knowledgeStore": null,
+  "indexProjections": null,
+  "encryptionKey": null
+}

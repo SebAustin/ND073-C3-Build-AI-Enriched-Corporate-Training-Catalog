@@ -1,0 +1,38 @@
+{
+  "@odata.context": "https://tcat-search-7861.search.windows.net/$metadata#skillsets/$entity",
+  "name": "courses-skillset",
+  "description": "Course Data enrichment",
+  "skills": [
+    {
+      "@odata.type": "#Microsoft.Skills.Text.KeyPhraseExtractionSkill",
+      "name": "description-skills",
+      "description": "Skills = key phrases of the description",
+      "context": "/document",
+      "defaultLanguageCode": "en",
+      "maxKeyPhraseCount": null,
+      "modelVersion": null,
+      "inputs": [
+        {
+          "name": "text",
+          "source": "/document/description",
+          "sourceContext": null,
+          "inputs": []
+        }
+      ],
+      "outputs": [
+        {
+          "name": "keyPhrases",
+          "targetName": "keyphrases"
+        }
+      ]
+    }
+  ],
+  "cognitiveServices": {
+    "@odata.type": "#Microsoft.Azure.Search.CognitiveServicesByKey",
+    "description": "AI Services (S0) for enrichment billing",
+    "key": "<redacted>"
+  },
+  "knowledgeStore": null,
+  "indexProjections": null,
+  "encryptionKey": null
+}

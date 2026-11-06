@@ -1,0 +1,34 @@
+{
+  "@odata.context": "https://tcat-search-7861.search.windows.net/$metadata#indexers/$entity",
+  "name": "courses-indexer",
+  "description": null,
+  "dataSourceName": "course-data",
+  "skillsetName": "courses-skillset",
+  "targetIndexName": "courses-index",
+  "disabled": null,
+  "schedule": {
+    "interval": "P1D",
+    "startTime": "2026-11-07T06:00:00Z"
+  },
+  "parameters": {
+    "batchSize": null,
+    "maxFailedItems": 0,
+    "maxFailedItemsPerBatch": 0,
+    "base64EncodeKeys": null,
+    "configuration": {}
+  },
+  "fieldMappings": [],
+  "outputFieldMappings": [
+    {
+      "sourceFieldName": "/document/keyphrases",
+      "targetFieldName": "keyphrases",
+      "mappingFunction": null
+    },
+    {
+      "sourceFieldName": "/document/instructorEntities/*/profile",
+      "targetFieldName": "instructorProfiles",
+      "mappingFunction": null
+    }
+  ],
+  "encryptionKey": null
+}

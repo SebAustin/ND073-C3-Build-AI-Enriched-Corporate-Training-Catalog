@@ -70,3 +70,63 @@ public sealed class SpringerClientTests
         return doc.RootElement.GetProperty("Values").GetProperty("SPRINGER_API_KEY").GetString();
     }
 }
+
+public sealed class SkillResponseContractTests
+{
+    [Fact]
+    public void Serialize_UsesSkillEnvelopeAndBriefOutputNames()
+    {
+        var response = new SpringerLookup.WebApiResponse();
+        response.Values.Add(new SpringerLookup.OutputRecord
+        {
+            RecordId = "e1",
+            Data = new PublicationMetadata("Journal of Big Data", "Springer", "10.1186/x", "2019-06-06T00:00:00Z"),
+        });
+
+        var json = SpringerLookup.Serialize(response);
+
+        Assert.StartsWith("{\"values\":[{\"recordId\":\"e1\",\"data\":{\"PublicationName\":", json);
+        Assert.Contains("\"DOI\":\"10.1186/x\"", json);
+        Assert.Contains("\"warnings\":[]", json);
+    }
+}
+
+public sealed class SpringerClientHttpTests
+{
+    private sealed class StubHandler(Func<HttpRequestMessage, HttpResponseMessage> respond) : HttpMessageHandler
+    {
+        public List<string> Queries { get; } = new();
+
+        protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+        {
+            Queries.Add(Uri.UnescapeDataString(request.RequestUri!.Query));
+            return Task.FromResult(respond(request));
+        }
+    }
+
+    [Fact]
+    public async Task LookupAsync_FallsBackToSecondPrefix_WhenFirstDoiReturns404()
+    {
+        var handler = new StubHandler(req => Uri.UnescapeDataString(req.RequestUri!.Query).Contains("doi:10.1186")
+            ? new HttpResponseMessage(System.Net.HttpStatusCode.NotFound) { Content = new StringContent("{\"status\":\"Fail\"}") }
+            : new HttpResponseMessage(System.Net.HttpStatusCode.OK)
+            {
+                Content = new StringContent("{\"records\":[{\"publicationName\":\"Brain Informatics\",\"publisher\":\"Springer\",\"doi\":\"10.1007/s40708-015-0017-z\",\"publicationDate\":\"2015-09-01\"}]}"),
+            });
+        var client = new SpringerClient(new HttpClient(handler), "test-key");
+
+        var result = await client.LookupAsync("", "s40708-015-0017-z.pdf");
+
+        Assert.Equal("10.1007/s40708-015-0017-z", result.DOI);
+        Assert.Equal(2, handler.Queries.Count);
+    }
+
+    [Fact]
+    public async Task LookupAsync_Throws_OnServerError()
+    {
+        var handler = new StubHandler(_ => new HttpResponseMessage(System.Net.HttpStatusCode.InternalServerError) { Content = new StringContent("boom") });
+        var client = new SpringerClient(new HttpClient(handler), "test-key");
+
+        await Assert.ThrowsAsync<HttpRequestException>(() => client.LookupAsync("Some title", "x.pdf"));
+    }
+}

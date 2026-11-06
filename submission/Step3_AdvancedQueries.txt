@@ -1,0 +1,432 @@
+### Query 1: Courses: Internal offerings return their Instructor Profiles
+Index: courses-index
+Query string: search=*&$filter=type eq 'Internal'&$count=true&$top=5&$select=title,instructor,instructorProfiles
+
+Result:
+{
+  "@odata.context": "https://tcat-search-7861.search.windows.net/indexes('courses-index')/$metadata#docs(*)",
+  "@odata.count": 14,
+  "value": [
+    {
+      "@search.score": 1.0,
+      "title": "O365",
+      "instructor": "Gerald Dominguez",
+      "instructorProfiles": [
+        {
+          "name": "Gerald Dominguez",
+          "description": "Gerald is a Junior IT Administrator and has been with the company for 1 year. Gerald played NCAA soccer and is a part-time soccer coach on weekends. "
+        }
+      ]
+    },
+    {
+      "@search.score": 1.0,
+      "title": "Security for database code",
+      "instructor": "Eileen Diaz",
+      "instructorProfiles": [
+        {
+          "name": "Eileen Diaz",
+          "description": "Eileen is our Senior Security Engineer responsible for application and service security. She has been with the company for 9 years and enjoys writing Sci-Fi in her spare time."
+        }
+      ]
+    },
+    {
+      "@search.score": 1.0,
+      "title": "Onboarding - Technology Policies",
+      "instructor": "Mike Montoya",
+      "instructorProfiles": [
+        {
+          "name": "Mike Montoya",
+          "description": "Mike  is our HR trainer responsible for helping employees be successful in their careers at our company.  He has been with us for 3 years. Mike is an amateur chef and enjoys outdoor live music events."
+        }
+      ]
+    },
+    {
+      "@search.score": 1.0,
+      "title": "Maps",
+      "instructor": "Robert Gillis",
+      "instructorProfiles": [
+        {
+          "name": "Robert Gillis",
+          "description": "Robert is our GIS specialist in charge of making beautiful maps for our users. He has been with the company for 8 years and enjoys hiking, fishing, and any other outdoor activity."
+        }
+      ]
+    },
+    {
+      "@search.score": 1.0,
+      "title": "DevOps for Ops",
+      "instructor": "Claudia Blackman",
+      "instructorProfiles": [
+        {
+          "name": "Claudia Blackman",
+          "description": "Claudia is our senior DevOps engineer. She is charged with overseeing our DevOps operations and has been with the company for 2 years. Claudia enjoys downhill skiing and is a member of the local Search & Rescue Team."
+        }
+      ]
+    }
+  ]
+}
+
+### Query 2: Courses: filter by Instructor Profile name
+Index: courses-index
+Query string: search=*&$filter=instructorProfiles/any(p: p/name eq 'Eileen Diaz')&$count=true&$select=title,instructorProfiles
+
+Result:
+{
+  "@odata.context": "https://tcat-search-7861.search.windows.net/indexes('courses-index')/$metadata#docs(*)",
+  "@odata.count": 5,
+  "value": [
+    {
+      "@search.score": 1.0,
+      "title": "Security for database code",
+      "instructorProfiles": [
+        {
+          "name": "Eileen Diaz",
+          "description": "Eileen is our Senior Security Engineer responsible for application and service security. She has been with the company for 9 years and enjoys writing Sci-Fi in her spare time."
+        }
+      ]
+    },
+    {
+      "@search.score": 1.0,
+      "title": "Ethics in AI",
+      "instructorProfiles": [
+        {
+          "name": "Eileen Diaz",
+          "description": "Eileen is our Senior Security Engineer responsible for application and service security. She has been with the company for 9 years and enjoys writing Sci-Fi in her spare time."
+        }
+      ]
+    },
+    {
+      "@search.score": 1.0,
+      "title": "Security for database admins",
+      "instructorProfiles": [
+        {
+          "name": "Eileen Diaz",
+          "description": "Eileen is our Senior Security Engineer responsible for application and service security. She has been with the company for 9 years and enjoys writing Sci-Fi in her spare time."
+        }
+      ]
+    },
+    {
+      "@search.score": 1.0,
+      "title": "Encryption and security",
+      "instructorProfiles": [
+        {
+          "name": "Eileen Diaz",
+          "description": "Eileen is our Senior Security Engineer responsible for application and service security. She has been with the company for 9 years and enjoys writing Sci-Fi in her spare time."
+        }
+      ]
+    },
+    {
+      "@search.score": 1.0,
+      "title": "Code security",
+      "instructorProfiles": [
+        {
+          "name": "Eileen Diaz",
+          "description": "Eileen is our Senior Security Engineer responsible for application and service security. She has been with the company for 9 years and enjoys writing Sci-Fi in her spare time."
+        }
+      ]
+    }
+  ]
+}
+
+### Query 3: Courses: search inside Instructor Profile descriptions
+Index: courses-index
+Query string: search=skiing&searchFields=instructorProfiles/description&$count=true&$select=title,instructorProfiles
+
+Result:
+{
+  "@odata.context": "https://tcat-search-7861.search.windows.net/indexes('courses-index')/$metadata#docs(*)",
+  "@odata.count": 3,
+  "value": [
+    {
+      "@search.score": 1.3179165,
+      "title": "DevOps for Ops",
+      "instructorProfiles": [
+        {
+          "name": "Claudia Blackman",
+          "description": "Claudia is our senior DevOps engineer. She is charged with overseeing our DevOps operations and has been with the company for 2 years. Claudia enjoys downhill skiing and is a member of the local Search & Rescue Team."
+        }
+      ]
+    },
+    {
+      "@search.score": 1.3179165,
+      "title": "Git Workflow",
+      "instructorProfiles": [
+        {
+          "name": "Claudia Blackman",
+          "description": "Claudia is our senior DevOps engineer. She is charged with overseeing our DevOps operations and has been with the company for 2 years. Claudia enjoys downhill skiing and is a member of the local Search & Rescue Team."
+        }
+      ]
+    },
+    {
+      "@search.score": 1.3179165,
+      "title": "DevOps for Dev",
+      "instructorProfiles": [
+        {
+          "name": "Claudia Blackman",
+          "description": "Claudia is our senior DevOps engineer. She is charged with overseeing our DevOps operations and has been with the company for 2 years. Claudia enjoys downhill skiing and is a member of the local Search & Rescue Team."
+        }
+      ]
+    }
+  ]
+}
+
+### Query 4: Courses: facet by Instructor
+Index: courses-index
+Query string: search=*&$count=true&$top=0&facet=instructorProfiles/name
+
+Result:
+{
+  "@odata.context": "https://tcat-search-7861.search.windows.net/indexes('courses-index')/$metadata#docs(*)",
+  "@odata.count": 995,
+  "@search.facets": {
+    "instructorProfiles/name": [
+      {
+        "value": "Eileen Diaz",
+        "count": 5
+      },
+      {
+        "value": "Claudia Blackman",
+        "count": 3
+      },
+      {
+        "value": "Mike Montoya",
+        "count": 3
+      },
+      {
+        "value": "Gerald Dominguez",
+        "count": 2
+      },
+      {
+        "value": "Robert Gillis",
+        "count": 1
+      }
+    ]
+  },
+  "value": []
+}
+
+### Query 5: Library: Publication details and DOI returned with each Paper
+Index: library-index
+Query string: search=*&$count=true&$top=5&$select=metadata_title,publicationName,publisher,publicationDate,doi
+
+Result:
+{
+  "@odata.context": "https://tcat-search-7861.search.windows.net/indexes('library-index')/$metadata#docs(*)",
+  "@odata.count": 20,
+  "value": [
+    {
+      "@search.score": 1.0,
+      "metadata_title": "Discriminated by an algorithm: a systematic review of discrimination and fairness by algorithmic decision-making in the context of HR recruitment and HR development",
+      "publicationName": "",
+      "publisher": "",
+      "doi": "",
+      "publicationDate": null
+    },
+    {
+      "@search.score": 1.0,
+      "metadata_title": "01-CVM0189.pdf",
+      "publicationName": "",
+      "publisher": "",
+      "doi": "",
+      "publicationDate": null
+    },
+    {
+      "@search.score": 1.0,
+      "metadata_title": null,
+      "publicationName": "Journal of the Brazilian Computer Society",
+      "publisher": "Springer",
+      "doi": "10.1007/s13173-013-0117-7",
+      "publicationDate": "2013-11-01T00:00:00Z"
+    },
+    {
+      "@search.score": 1.0,
+      "metadata_title": "Augmented reality virtual glasses try-on technology based on iOS platform",
+      "publicationName": "EURASIP Journal on Image and Video Processing",
+      "publisher": "Springer",
+      "doi": "10.1186/s13640-018-0373-8",
+      "publicationDate": "2018-11-27T00:00:00Z"
+    },
+    {
+      "@search.score": 1.0,
+      "metadata_title": "A classification method for social information of sellers on social network",
+      "publicationName": "EURASIP Journal on Image and Video Processing",
+      "publisher": "Springer",
+      "doi": "10.1186/s13640-020-00545-z",
+      "publicationDate": "2021-01-14T00:00:00Z"
+    }
+  ]
+}
+
+### Query 6: Library: facet by publisher and Publication
+Index: library-index
+Query string: search=*&$count=true&$top=0&facet=publisher&facet=publicationName
+
+Result:
+{
+  "@odata.context": "https://tcat-search-7861.search.windows.net/indexes('library-index')/$metadata#docs(*)",
+  "@odata.count": 20,
+  "@search.facets": {
+    "publisher": [
+      {
+        "value": "Springer",
+        "count": 18
+      },
+      {
+        "value": "",
+        "count": 2
+      }
+    ],
+    "publicationName": [
+      {
+        "value": "Journal of Big Data",
+        "count": 5
+      },
+      {
+        "value": "",
+        "count": 2
+      },
+      {
+        "value": "Brain Informatics",
+        "count": 2
+      },
+      {
+        "value": "EURASIP Journal on Image and Video Processing",
+        "count": 2
+      },
+      {
+        "value": "Human-centric Computing and Information Sciences",
+        "count": 2
+      },
+      {
+        "value": "Journal of Trust Management",
+        "count": 2
+      },
+      {
+        "value": "Applied Network Science",
+        "count": 1
+      },
+      {
+        "value": "Complex Adaptive Systems Modeling",
+        "count": 1
+      },
+      {
+        "value": "Journal of Uncertainty Analysis and Applications",
+        "count": 1
+      },
+      {
+        "value": "Journal of the Brazilian Computer Society",
+        "count": 1
+      }
+    ]
+  },
+  "value": []
+}
+
+### Query 7: Library: Papers published since 2019, newest first
+Index: library-index
+Query string: search=*&$filter=publicationDate ge 2019-01-01T00:00:00Z&$orderby=publicationDate desc&$count=true&$select=metadata_title,publicationName,publicationDate,doi
+
+Result:
+{
+  "@odata.context": "https://tcat-search-7861.search.windows.net/indexes('library-index')/$metadata#docs(*)",
+  "@odata.count": 8,
+  "value": [
+    {
+      "@search.score": 1.0,
+      "metadata_title": "A classification method for social information of sellers on social network",
+      "publicationName": "EURASIP Journal on Image and Video Processing",
+      "doi": "10.1186/s13640-020-00545-z",
+      "publicationDate": "2021-01-14T00:00:00Z"
+    },
+    {
+      "@search.score": 1.0,
+      "metadata_title": "Detecting problematic transactions in a consumer-to-consumer e-commerce network",
+      "publicationName": "Applied Network Science",
+      "doi": "10.1007/s41109-020-00330-x",
+      "publicationDate": "2020-11-16T00:00:00Z"
+    },
+    {
+      "@search.score": 1.0,
+      "metadata_title": "Technological advancements and opportunities in Neuromarketing: a systematic review",
+      "publicationName": "Brain Informatics",
+      "doi": "10.1186/s40708-020-00109-x",
+      "publicationDate": "2020-09-21T00:00:00Z"
+    },
+    {
+      "@search.score": 1.0,
+      "metadata_title": "Improving prediction with enhanced Distributed Memory-based Resilient Dataset Filter",
+      "publicationName": "Journal of Big Data",
+      "doi": "10.1186/s40537-020-00292-y",
+      "publicationDate": "2020-02-28T00:00:00Z"
+    },
+    {
+      "@search.score": 1.0,
+      "metadata_title": "Context-aware rule learning from smartphone data: survey, challenges and future directions",
+      "publicationName": "Journal of Big Data",
+      "doi": "10.1186/s40537-019-0258-4",
+      "publicationDate": "2019-10-31T00:00:00Z"
+    },
+    {
+      "@search.score": 1.0,
+      "metadata_title": "Big data stream analysis: a systematic literature review",
+      "publicationName": "Journal of Big Data",
+      "doi": "10.1186/s40537-019-0210-7",
+      "publicationDate": "2019-06-06T00:00:00Z"
+    },
+    {
+      "@search.score": 1.0,
+      "metadata_title": "Mobile marketing recommendation method based on user location feedback",
+      "publicationName": "Human-centric Computing and Information Sciences",
+      "doi": "10.1186/s13673-019-0177-6",
+      "publicationDate": "2019-05-01T00:00:00Z"
+    },
+    {
+      "@search.score": 1.0,
+      "metadata_title": "Mining aspects of customer’s review on the social network",
+      "publicationName": "Journal of Big Data",
+      "doi": "10.1186/s40537-019-0184-5",
+      "publicationDate": "2019-02-28T00:00:00Z"
+    }
+  ]
+}
+
+### Query 8: Library: search by Publication name
+Index: library-index
+Query string: queryType=full&search=publicationName:"Journal of Big Data"&$count=true&$select=metadata_title,publicationName,doi
+
+Result:
+{
+  "@odata.context": "https://tcat-search-7861.search.windows.net/indexes('library-index')/$metadata#docs(*)",
+  "@odata.count": 5,
+  "value": [
+    {
+      "@search.score": 3.6046457,
+      "metadata_title": "Privacy preservation techniques in big data analytics: a survey",
+      "publicationName": "Journal of Big Data",
+      "doi": "10.1186/s40537-018-0141-8"
+    },
+    {
+      "@search.score": 3.6046457,
+      "metadata_title": "Mining aspects of customer’s review on the social network",
+      "publicationName": "Journal of Big Data",
+      "doi": "10.1186/s40537-019-0184-5"
+    },
+    {
+      "@search.score": 3.6046457,
+      "metadata_title": "Big data stream analysis: a systematic literature review",
+      "publicationName": "Journal of Big Data",
+      "doi": "10.1186/s40537-019-0210-7"
+    },
+    {
+      "@search.score": 3.6046457,
+      "metadata_title": "Context-aware rule learning from smartphone data: survey, challenges and future directions",
+      "publicationName": "Journal of Big Data",
+      "doi": "10.1186/s40537-019-0258-4"
+    },
+    {
+      "@search.score": 3.6046457,
+      "metadata_title": "Improving prediction with enhanced Distributed Memory-based Resilient Dataset Filter",
+      "publicationName": "Journal of Big Data",
+      "doi": "10.1186/s40537-020-00292-y"
+    }
+  ]
+}
